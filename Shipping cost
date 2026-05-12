@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Low Shipping Analyzer</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      background: black;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    canvas {
+      margin-top: 20px;
+      width: 100%;
+      border-radius: 15px;
+    }
+
+    .result {
+      margin-top: 20px;
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: left;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      color: white;
+      background: green;
+      padding: 10px 20px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Shipping Charge Analyzer</h1>
+
+  <input type="file" id="upload" accept="image/*" />
+  <br>
+  <button onclick="generateImage()">Analyze & Generate</button>
+
+  <div class="result" id="analysis">
+    Waiting for image...
+  </div>
+
+  <canvas id="canvas" width="1000" height="1000"></canvas>
+
+  <br>
+  <a id="downloadBtn" download="catalog.png">Download Image</a>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const upload = document.getElementById('upload');
+  const analysis = document.getElementById('analysis');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  function generateImage() {
+
+    const file = upload.files[0];
+
+    if (!file) {
+      alert('Upload image first');
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+
+      const img = new Image();
+
+      img.onload = function() {
+
+        // Fake analysis logic
+        let shipping;
+
+        if (img.width > 2000 || img.height > 2000) {
+          shipping = '₹120 Shipping';
+        } else if (img.width > 1200 || img.height > 1200) {
+          shipping = '₹80 Shipping';
+        } else {
+          shipping = '₹40 Low Shipping';
+        }
+
+        analysis.innerHTML = `
+          <h3>Analysis Result</h3>
+          <p><b>Image Size:</b> ${img.width} × ${img.height}</p>
+          <p><b>Estimated Shipping:</b> ${shipping}</p>
+          <p><b>Status:</b> Optimized for catalog</p>
+        `;
+
+        // Background
+        const gradient = ctx.createLinearGradient(0,0,1000,1000);
+        gradient.addColorStop(0, '#ff7b00');
+        gradient.addColorStop(1, '#ffcc00');
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0,0,1000,1000);
+
+        // Text
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 70px Arial';
+        ctx.fillText('LOW SHIPPING', 160, 100);
+
+        ctx.font = 'bold 45px Arial';
+        ctx.fillText(shipping, 320, 180);
+
+        // Product image
+        let width = img.width;
+        let height = img.height;
+
+        const maxSize = 600;
+
+        if(width > height){
+          height *= maxSize / width;
+          width = maxSize;
+        } else {
+          width *= maxSize / height;
+          height = maxSize;
+        }
+
+        ctx.drawImage(img, (1000-width)/2, 280, width, height);
+
+        const url = canvas.toDataURL();
+        downloadBtn.href = url;
+      }
+
+      img.src = event.target.result;
+    }
+
+    reader.readAsDataURL(file);
+  }
+</script>
+
+</body>
+</html>
