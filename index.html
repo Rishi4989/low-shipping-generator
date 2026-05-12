@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Low Shipping Image Generator</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 450px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      margin: 20px 0;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      background: black;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    canvas {
+      margin-top: 20px;
+      width: 100%;
+      border-radius: 15px;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      color: white;
+      background: green;
+      padding: 10px 20px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Low Shipping Generator</h1>
+
+  <input type="file" id="upload" accept="image/*" />
+  <br>
+  <button onclick="generateImage()">Generate Image</button>
+
+  <canvas id="canvas" width="1000" height="1000"></canvas>
+
+  <br>
+  <a id="downloadBtn" download="catalog.png">Download</a>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const upload = document.getElementById('upload');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  function generateImage() {
+
+    const file = upload.files[0];
+
+    if (!file) {
+      alert('Upload image first');
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+
+      const img = new Image();
+
+      img.onload = function() {
+
+        // Background
+        const gradient = ctx.createLinearGradient(0,0,1000,1000);
+        gradient.addColorStop(0, '#ff7b00');
+        gradient.addColorStop(1, '#ffcc00');
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0,0,1000,1000);
+
+        // Text
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 70px Arial';
+        ctx.fillText('LOW SHIPPING', 180, 100);
+
+        ctx.font = 'bold 45px Arial';
+        ctx.fillText('FREE DELIVERY', 300, 180);
+
+        // Product
+        let width = img.width;
+        let height = img.height;
+
+        const maxSize = 600;
+
+        if(width > height){
+          height *= maxSize / width;
+          width = maxSize;
+        } else {
+          width *= maxSize / height;
+          height = maxSize;
+        }
+
+        ctx.drawImage(img, (1000-width)/2, 280, width, height);
+
+        // Download
+        const url = canvas.toDataURL();
+        downloadBtn.href = url;
+      }
+
+      img.src = event.target.result;
+    }
+
+    reader.readAsDataURL(file);
+  }
+</script>
+
+</body>
+</html>
